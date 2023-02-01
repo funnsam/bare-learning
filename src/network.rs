@@ -41,12 +41,12 @@ impl Layer {
             (a - b).powi(2)
         }
 
-        fn error(expect: &Vec<f32>, result: &Vec<f32>, samples: usize) -> f32 {
+        fn error(expect: &Vec<f32>, result: &Vec<f32>) -> f32 {
             let mut a = 0.0;
-            for i in 0..samples {
+            for i in 0..expect.len()-1 {
                 a += loss(expect[i], result[i])
             }
-            a / samples as f32
+            a / expect.len() as f32
         }
 
         let mut _results = Vec::with_capacity(data.len());
@@ -69,12 +69,12 @@ impl Layer {
         }
 
         for (i, bias) in self.bias.iter_mut().enumerate() {
-            *bias -= alpha * (error(&expect[i], &results[i], data.len()));
+            *bias -= alpha * (error(&expect[i], &results[i]) / *bias);
         }
 
-        for (i, node) in self.weights.iter_mut().enumerate() {
-            for (_, weight) in node.iter_mut().enumerate() {
-                *weight -= alpha * (error(&expect[i], &results[i], data.len()));
+        for node in self.weights.iter_mut() {
+            for (i, weight) in node.iter_mut().enumerate() {
+                *weight -= alpha * (error(&expect[i], &results[i]) / *weight);
             }
         }
     }
@@ -99,7 +99,7 @@ impl Network {
             return None
         }
         let mut netw = Self {
-            input : batch_f32(sizes[0], 1.0, 0.5),
+            input : vec![0.0; sizes[0]],// batch_f32(sizes[0], 1.0, 0.5),
             hidden: Vec::with_capacity(sizes.len()),
             output: Layer::new(sizes[sizes.len()-1], sizes[sizes.len()-2])
         };
@@ -148,5 +148,5 @@ pub struct Data {
 }
 
 fn sigmoid(a: f32) -> f32 {
-    1.0 / (1.0 + std::f32::consts::E.powf(a))
+    1.0 / (1.0 + std::f32::consts::E.powf(-a))
 }
