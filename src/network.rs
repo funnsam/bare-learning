@@ -35,6 +35,43 @@ impl Layer {
         }
         results
     }
+
+    fn train(&mut self, data: &Vec<Data>, alpha: f32) {
+        fn loss(a: f32, b: f32) -> f32 {
+            (a - b).powi(2)
+        }
+
+        fn error(expect: &Vec<f32>, result: &Vec<f32>, samples: usize) -> f32 {
+            let mut a = 0.0;
+            for i in 0..samples {
+                a += loss(expect[i], result[i])
+            }
+            a / samples as f32
+        }
+
+        let mut _results = Vec::with_capacity(data.len());
+        for i in data.iter() {
+            _results.push(self.predict(&i.inputs));
+        }
+        let _results = _results.iter().cloned().flat_map(|a| a.iter().cloned().collect::<Vec<_>>()).collect::<Vec<f32>>();
+        let mut results: Vec<Vec<f32>> = vec![Vec::with_capacity(_results.len() >> 1); 2];
+
+        for (i, el) in _results.iter().enumerate() {
+            results[i&1].push(*el)
+        }
+
+        let _expect = data.iter().map(|a| a.outputs.to_owned()).collect::<Vec<Vec<f32>>>();
+        let _expect = _expect.iter().cloned().flat_map(|a| a.iter().cloned().collect::<Vec<_>>()).collect::<Vec<f32>>();
+        let mut expect: Vec<Vec<f32>> = vec![Vec::with_capacity(_expect.len() >> 1); 2];
+
+        for (i, el) in _expect.iter().enumerate() {
+            expect[i&1].push(*el)
+        }
+
+        for bias in self.bias.iter_mut() {
+            *bias -= alpha * (0.0)
+        }
+    }
 }
 
 /// This is a neural network.
@@ -84,9 +121,15 @@ impl Network {
         Some(self.output.predict(&prev_iter))
     }
 
-    /// Trains a neural network.
-    pub fn train(&mut self, dataset: &Vec<Data>) {
-        todo!()
+    /// Trains a neural network. Alpha is the learning rate
+    pub fn train(&mut self, data: &Vec<Data>, alpha: f32) -> Option<()> {
+        if data[0].inputs.len() != self.input.len() || data[0].outputs.len() != self.output.len {
+            return None
+        }
+
+        self.output.train(data, alpha);
+
+        Some(())
     }
 }
 

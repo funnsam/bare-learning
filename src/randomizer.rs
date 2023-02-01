@@ -14,8 +14,8 @@ pub fn rand_f32() -> f32 {
     unsafe {
         let mut x = SEED;
         x ^= x << 13;
-	    x ^= x >> 17;
-    	x ^= x << 5;
+        x ^= x >> 17;
+        x ^= x << 5;
         SEED = x;
         x as i32 as f32 / 100000000.0
     }
