@@ -65,11 +65,17 @@ impl Layer {
         let mut expect: Vec<Vec<f32>> = vec![Vec::with_capacity(_expect.len() >> 1); 2];
 
         for (i, el) in _expect.iter().enumerate() {
-            expect[i&1].push(*el)
+            expect[i%self.len].push(*el)
         }
 
-        for bias in self.bias.iter_mut() {
-            *bias -= alpha * (0.0)
+        for (i, bias) in self.bias.iter_mut().enumerate() {
+            *bias -= alpha * (error(&expect[i], &results[i], data.len()));
+        }
+
+        for (i, node) in self.weights.iter_mut().enumerate() {
+            for (_, weight) in node.iter_mut().enumerate() {
+                *weight -= alpha * (error(&expect[i], &results[i], data.len()));
+            }
         }
     }
 }
