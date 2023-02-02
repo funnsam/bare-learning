@@ -14,5 +14,5 @@ fn main() {
 
 fn print_stuff(nn: &Network, i: usize) {
     let pred = nn.predict(&vec![0.4, 0.6]).unwrap()[0];
-    println!("\x1b[0;1m{i:010} ---- {:01.5}\x1b[0m ---- {pred:03.10}", 1.0-loss(pred, 0.5));
+    println!("\x1b[0;1m{i:010} ---- {:03.5}%\x1b[0m ---- {pred:03.10}", (1.0-loss(pred, 0.5)) * 100.0);
 }

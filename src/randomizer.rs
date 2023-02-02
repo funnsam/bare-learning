@@ -1,5 +1,3 @@
-use std::time::*;
-
 pub static mut SEED: u32 = 0;
 
 pub fn batch_f32(n: usize, l: f32, m: f32) -> Vec<f32> {
@@ -21,8 +19,10 @@ pub fn rand_f32() -> f32 {
     }
 }
 
+#[cfg(feature = "std")]
 pub fn init_randomizer() {
     unsafe {
+        use std::time::*;
         SEED = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs() as u32;
     }
 }
