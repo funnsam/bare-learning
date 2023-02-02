@@ -1,4 +1,5 @@
 use crate::randomizer::*;
+use crate::utils::*;
 
 #[derive(Debug, Clone)]
 struct Layer {
@@ -19,7 +20,7 @@ impl Layer {
             len: size,
             p_len: p_size,
             weights,
-            bias: batch_f32(size, 1.0, 0.5)
+            bias: vec![0.0; size]
         }
     }
 
@@ -52,19 +53,9 @@ impl Layer {
     }
 
     fn train(&mut self, data: &Vec<Data>, alpha: f32) {
-        fn loss(a: f32, b: f32) -> f32 {
-            (a - b).powi(2)
-        }
-
-        let mut _results = Vec::with_capacity(data.len());
+        let mut results = Vec::with_capacity(data.len());
         for i in data.iter() {
-            _results.push(self.pred_w_z(&i.inputs));
-        }
-        let _results = _results.iter().cloned().flat_map(|a| a.iter().cloned().collect::<Vec<_>>()).collect::<Vec<(f32, f32)>>();
-        let mut results: Vec<Vec<(f32, f32)>> = vec![Vec::with_capacity(_results.len() >> 1); 2];
-
-        for (i, el) in _results.iter().enumerate() {
-            results[i&1].push(*el)
+            results.push(self.pred_w_z(&i.inputs));
         }
 
         let _expect = data.iter().map(|a| a.outputs.to_owned()).collect::<Vec<Vec<f32>>>();
@@ -75,22 +66,22 @@ impl Layer {
             expect[i%self.len].push(*el)
         }
 
-        for (i, bias) in self.bias.iter_mut().enumerate() {
-            let mut t = 0.0;
-            for r in results.iter() {
-                t += (r[i].1 / *bias) * r[i].0 * r[i].1
-            }
-            *bias -= t / results.len() as f32 * alpha;
-        }
-
         for node in self.weights.iter_mut() {
             for (j, weight) in node.iter_mut().enumerate() {
                 let mut t = 0.0;
                 for (i, r) in results.iter().enumerate() {
                     t += loss(r[j].0, expect[j][i]) * r[j].0 * r[j].1
                 }
-                *weight -= t / results.len() as f32 * alpha
+                *weight -= alpha * (t / *weight)
             }
+        }
+
+        for (j, bias) in self.bias.iter_mut().enumerate() {
+            let mut t = 0.0;
+            for r in results.iter() {
+                t += r[j].1
+            }
+            *bias -= alpha * t;
         }
     }
 }
