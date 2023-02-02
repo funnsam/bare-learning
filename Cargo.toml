@@ -3,7 +3,7 @@ name = "bare-learning"
 version = "0.1.0"
 edition = "2021"
 license = "BSD-2-Clause"
-documentation = "https://funnsam.github.io/bare-learning"
+documentation = "https://funnsam.github.io/bare-learning/bare_learning"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
