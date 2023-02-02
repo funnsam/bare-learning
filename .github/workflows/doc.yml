@@ -31,7 +31,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Generate docs
-        run: cargo doc --all --features css_compat --features css_codegen --features css_minifier --features css_prefixer --features css_parser --features common_tty
+        run: cargo doc --all
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Upload artifact
