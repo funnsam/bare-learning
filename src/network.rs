@@ -20,7 +20,7 @@ impl Layer {
             len: size,
             p_len: p_size,
             weights,
-            bias: vec![0.0; size]
+            bias: batch_f32(size, 1.0, 0.5)
         }
     }
 
@@ -117,6 +117,8 @@ impl Network {
         // if data.len() != self.input.len() {
         //     return None
         // }
+
+        // TODO: Multi-layer support
 
         let mut prev_iter = data.clone();
         for el in self.hidden.iter() {
